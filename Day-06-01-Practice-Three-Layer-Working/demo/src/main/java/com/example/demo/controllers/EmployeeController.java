@@ -4,9 +4,12 @@ import com.example.demo.dtos.EmployeeDto;
 import com.example.demo.entities.EmployeEntity;
 import com.example.demo.repositories.EmployeeRepository;
 import com.example.demo.services.EmployeeService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/employees")
@@ -19,8 +22,10 @@ public class EmployeeController {
     }
 
     @GetMapping(path = "/{employeeId}")
-    public EmployeeDto getEmployeeById(@PathVariable(name = "employeeId") Long id){
-        return employeeService.getEmployeeById(id);
+    public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable(name = "employeeId") Long id){
+        Optional<EmployeeDto>employeeDto = employeeService.getEmployeeById(id);
+        return employeeDto.map(employeeDto1 -> ResponseEntity.ok(employeeDto1))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
@@ -34,5 +39,20 @@ public class EmployeeController {
         return employeeService.createNewEmployee(inputEmployee);
     }
 
+    @PutMapping(path = "/{employeeId}")
+    public EmployeeDto updateEmployeeById(@RequestBody EmployeeDto employeeDto , @PathVariable Long employeeId){
+        return employeeService.updateEmployeeById(employeeDto , employeeId);
+    }
+
+    @DeleteMapping(path = "/{employeeId}")
+    public boolean deleteEmployee(@PathVariable Long employeeId){
+        return employeeService.deleteEmployee(employeeId);
+    }
+
+    @PatchMapping(path = "/{employeeId}")
+    public EmployeeDto updatePartialEmployeeById(@RequestBody Map<String , Object> updates,
+                                                 @PathVariable Long employeeId){
+        return employeeService.updatePartialEmployeeById(employeeId , updates);
+    }
 
 }
